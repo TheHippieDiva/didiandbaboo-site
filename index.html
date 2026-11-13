@@ -67,7 +67,7 @@ h2{font-size:clamp(26px,4vw,36px);color:var(--plum);margin-bottom:6px}
 .plate{aspect-ratio:1;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:clamp(16px,2.2vw,22px);padding:18px;box-shadow:inset 0 0 0 12px #ffffff55,0 7px 0 #0002}
 .plate .eyes{display:flex;gap:12px;margin-bottom:10px}
 .plate .eyes i{width:30px;height:30px;border-radius:50%;background:#fff;border:3px solid var(--ink);position:relative}
-.plate .eyes i:after{content:"";position:absolute;width:12px;height:12px;border-radius:50%;background:var(--ink);top:8px;left:9px;transition:transform .15s}
+.plate .eyes i:after{content:"";position:absolute;width:12px;height:12px;border-radius:50%;background:var(--ink);top:8px;left:9px;transition:transform .15s;transform:translate(var(--x,0px),var(--y,0px))}
 .plate small{font-size:14px;font-weight:600;opacity:.85;margin-top:6px}
 .p1{background:var(--cherry);color:#fff}.p2{background:var(--sun)}.p3{background:var(--sky)}
 .watch{display:inline-block;margin-top:24px;background:var(--cherry);color:#fff;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:999px;box-shadow:0 5px 0 #0002}
@@ -290,11 +290,16 @@ void main(){vec2 u=uv;
  Promise.all([tex('momo/momo.png',0,'img'),tex('momo/depth.png',1,'dep'),tex('momo/head_mask.png',2,'hm'),tex('momo/eyes.png',3,'eyem')]).then(()=>requestAnimationFrame(draw)).catch(()=>stage.classList.add('nogl'));
 })();
 
-/* ---------- song plates: their eyes follow too ---------- */
-(()=>{const ps=[...document.querySelectorAll('.plate .eyes i')];
- addEventListener('pointermove',e=>{ps.forEach(i=>{const r=i.getBoundingClientRect(),a=Math.atan2(e.clientY-r.top-r.height/2,e.clientX-r.left-r.width/2);
-  i.style.setProperty('--x',Math.cos(a)*5+'px');i.style.setProperty('--y',Math.sin(a)*5+'px')})});
- const st=document.createElement('style');st.textContent='.plate .eyes i:after{transform:translate(var(--x,0),var(--y,0))}';document.head.appendChild(st);
+/* ---------- song plates: their eyes follow too (mouse, finger, or a little wander when idle) ---------- */
+(()=>{const ps=[...document.querySelectorAll('.plate .eyes i')];let last=-1e9;
+ const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ function look(x,y){ps.forEach(i=>{const r=i.getBoundingClientRect(),a=Math.atan2(y-r.top-r.height/2,x-r.left-r.width/2);
+  i.style.setProperty('--x',(Math.cos(a)*5).toFixed(2)+'px');i.style.setProperty('--y',(Math.sin(a)*5).toFixed(2)+'px')})}
+ addEventListener('pointermove',e=>{last=performance.now();look(e.clientX,e.clientY)});
+ addEventListener('touchstart',e=>{last=performance.now();const t=e.touches[0];look(t.clientX,t.clientY)},{passive:true});
+ addEventListener('touchmove',e=>{last=performance.now();const t=e.touches[0];look(t.clientX,t.clientY)},{passive:true});
+ if(!still)setInterval(()=>{if(performance.now()-last<3000)return;const s=performance.now()/1000;
+  look(innerWidth/2+Math.sin(s*.7)*innerWidth*.6,innerHeight/2+Math.cos(s*1.1)*innerHeight*.6)},120);
 })();
 </script>
 </body>
