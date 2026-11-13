@@ -55,6 +55,9 @@ h2{font-size:clamp(26px,4vw,36px);color:var(--plum);margin-bottom:6px}
 .stage .still{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:none}
 .stage canvas{transform-origin:50% 90%;transition:transform .18s ease-in-out}
 .stage.pant canvas{transform:scale(1.008,1.014)}
+.card.purr{animation:purr .5s ease-in-out 3}
+@keyframes purr{0%,100%{transform:none}50%{transform:translateY(-2px) rotate(-.6deg)}}
+@media (prefers-reduced-motion: reduce){.card.purr{animation:none}}
 .bubble{position:absolute;right:3%;top:6%;max-width:40%;background:#fbf6eed9;color:#5b4a55;font-style:italic;font-weight:500;font-size:clamp(12px,1.4vw,15px);line-height:1.3;padding:9px 12px;border-radius:16px;box-shadow:0 3px 10px #0002;opacity:0;transition:opacity 1.2s ease;pointer-events:none}
 .bubble:after{content:"";position:absolute;left:-8px;bottom:16px;border:8px solid transparent;border-right-color:#fbf6eed9;border-left:0}
 .bubble.show{opacity:.92}
@@ -172,8 +175,8 @@ footer a{color:var(--sun);font-weight:600;text-decoration:none}
   <div class="card"><img src="img/bodhi.jpg" alt="Bodhi, a fluffy white dog with grey ear tips" loading="lazy"><div><b>Bodhi</b><p>The proud papa of the pack. White, floofy, and the boss of everything.</p></div></div>
   <div class="card"><img src="img/sparky.jpg" alt="Sparky" loading="lazy"><div><b>Sparky</b><p>The pup of the bunch.</p></div></div>
   <div class="card"><img src="img/simon-sasha.jpg" alt="Simon and Sasha, two Boston terriers" loading="lazy"><div><b>Simon &amp; Sasha</b><p>Two Boston terriers. Simon holds down the fort. Sasha is our angel now, watching over everyone.</p></div></div>
-  <div class="card"><img src="img/king-kai.jpg" alt="King Kai, a regal cat with blue eyes" loading="lazy"><div><b>King Kai</b><p>Patrols the block. Thinks he's a Lhasa Apso. Plays hide-and-seek with the dogs.</p></div></div>
-  <div class="card"><img src="img/lex.jpg" alt="Lex, a big black cat" loading="lazy"><div><b>Lex, the Fat Cat</b><p>Big cat, little head. Couch potato. Will steal a whole pizza off the counter.</p></div></div>
+  <div class="card"><img data-purr src="img/king-kai.jpg" alt="King Kai, a regal cat with blue eyes" loading="lazy"><div><b>King Kai</b><p>Patrols the block. Thinks he's a Lhasa Apso. Plays hide-and-seek with the dogs.</p></div></div>
+  <div class="card"><img data-purr src="img/lex.jpg" alt="Lex, a big black cat" loading="lazy"><div><b>Lex, the Fat Cat</b><p>Big cat, little head. Couch potato. Will steal a whole pizza off the counter.</p></div></div>
  </div>
 </div></section>
 
@@ -341,6 +344,24 @@ void main(){vec2 u=uv;
  },2000);
 })();
 
+/* ---------- the cats purr, softly, only when you hover or tap King Kai or Lex ---------- */
+(()=>{let ac=null;const lastAt=new WeakMap();
+ function purr(card){const now=performance.now();if(now-(lastAt.get(card)||-1e9)<8000)return;lastAt.set(card,now);
+  card.classList.remove('purr');void card.offsetWidth;card.classList.add('purr');
+  let muted=false;try{muted=localStorage.getItem('momo-muted')==='1'}catch(e){}
+  if(muted)return;
+  try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();
+   const t=ac.currentTime+.03,len=1.6,b=ac.createBuffer(1,ac.sampleRate*len,ac.sampleRate),d=b.getChannelData(0);
+   for(let j=0;j<d.length;j++)d[j]=Math.random()*2-1;
+   const n=ac.createBufferSource();n.buffer=b;const f=ac.createBiquadFilter();f.type='lowpass';f.frequency.value=320;
+   const am=ac.createGain();am.gain.value=0;const lfo=ac.createOscillator();lfo.frequency.value=24;const lg=ac.createGain();lg.gain.value=.5;
+   lfo.connect(lg).connect(am.gain);const bias=ac.createConstantSource?ac.createConstantSource():null;if(bias){bias.offset.value=.5;bias.connect(am.gain);bias.start(t);bias.stop(t+len)}
+   const g=ac.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.09,t+.3);g.gain.setValueAtTime(.09,t+len-.5);g.gain.linearRampToValueAtTime(0,t+len);
+   n.connect(f).connect(am).connect(g).connect(ac.destination);lfo.start(t);n.start(t);n.stop(t+len);lfo.stop(t+len)}catch(e){}}
+ document.querySelectorAll('img[data-purr]').forEach(img=>{const card=img.closest('.card');
+  card.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')purr(card)});
+  card.addEventListener('click',()=>purr(card));});
+})();
 /* ---------- song plates: their eyes follow too (mouse, finger, or a little wander when idle) ---------- */
 (()=>{const ps=[...document.querySelectorAll('.plate .eyes i')];let last=-1e9;
  const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
