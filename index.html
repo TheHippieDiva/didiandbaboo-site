@@ -55,9 +55,9 @@ h2{font-size:clamp(26px,4vw,36px);color:var(--plum);margin-bottom:6px}
 .stage .still{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:none}
 .stage canvas{transform-origin:50% 90%;transition:transform .18s ease-in-out}
 .stage.pant canvas{transform:scale(1.008,1.014)}
-.bubble{position:absolute;right:2%;top:4%;max-width:46%;background:var(--cream);color:var(--ink);font-weight:600;font-size:clamp(14px,1.8vw,18px);line-height:1.3;padding:12px 14px;border-radius:18px;box-shadow:0 6px 18px #0004;opacity:0;transform:translateY(8px) scale(.96);transition:opacity .4s,transform .4s;pointer-events:none}
-.bubble:after{content:"";position:absolute;left:-10px;bottom:22px;border:10px solid transparent;border-right-color:var(--cream);border-left:0}
-.bubble.show{opacity:1;transform:none}
+.bubble{position:absolute;right:3%;top:6%;max-width:40%;background:#fbf6eed9;color:#5b4a55;font-style:italic;font-weight:500;font-size:clamp(12px,1.4vw,15px);line-height:1.3;padding:9px 12px;border-radius:16px;box-shadow:0 3px 10px #0002;opacity:0;transition:opacity 1.2s ease;pointer-events:none}
+.bubble:after{content:"";position:absolute;left:-8px;bottom:16px;border:8px solid transparent;border-right-color:#fbf6eed9;border-left:0}
+.bubble.show{opacity:.92}
 .mute{position:absolute;left:2%;bottom:3%;border:0;border-radius:999px;background:#ffffff26;color:var(--cream);font:600 13px Fredoka,sans-serif;padding:7px 11px;cursor:pointer}
 .stage.nogl canvas,.stage.nogl .eye{display:none}.stage.nogl .still{display:block}
 .eye{position:absolute;width:3.9%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);overflow:hidden;background:radial-gradient(circle at 50% 45%,#5a2e10 0 45%,#42210b 75%,#1a0c05 100%);box-shadow:inset 0 3px 4px rgba(0,0,0,.55)}
@@ -320,20 +320,18 @@ void main(){vec2 u=uv;
  function pant(){pants++;lastPant=performance.now();pantSound();if(still)return;
   let k=0;const iv=setInterval(()=>{stage.classList.toggle('pant');if(++k>=8){clearInterval(iv);stage.classList.remove('pant')}},140)}
  // Uncle Momo's lines: gravelly, warm, friendly old hound. A different one each time, never repeats in a visit.
- const lines=["Hey there, little buddy. Ol' Momo's still right here.",
-  "Mmm-hmm\u2026 I was just restin' my eyes. Wanna make a beat?",
-  "Psst. Tap a pad. I'll keep time with my tail.",
-  "Well hey, friend. Got a song idea rattlin' around in there?",
-  "Easy now, no rush. I'll wait right here with my clipboard.",
-  "Heh. That beat box ain't gonna play itself, little buddy.",
-  "You thinkin'? I like thinkin'. Best songs start that way.",
-  "Ol' Uncle Momo's all ears. Well\u2026 mostly fur. But ears too.",
-  "Whatcha wanna sing about today? A puppy? A pizza? A wet leaf?",
-  "I've heard a lotta songs in my day. Bet yours is the best one yet.",
-  "Take your time, sweet pea. Good things are worth the wait."];
+ const lines=["psst\u2026 hey, little buddy. i'm still here.",
+  "mmm\u2026 just restin' my eyes.",
+  "psst\u2026 tap a pad. i'll keep time with my tail.",
+  "got a song idea rattlin' around in there?",
+  "no rush, friend. i'll wait right here.",
+  "heh\u2026 that beat box won't play itself.",
+  "ol' momo's all ears\u2026 well, mostly fur.",
+  "whatcha wanna sing about today?",
+  "take your time. good songs are worth the wait."];
  for(let i=lines.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[lines[i],lines[j]]=[lines[j],lines[i]]}
  const MAX_NUDGES=2;
- function say(txt){bub.textContent=txt;bub.classList.add('show');setTimeout(()=>bub.classList.remove('show'),6500)}
+ function say(txt){bub.textContent=txt;bub.classList.add('show');setTimeout(()=>bub.classList.remove('show'),5000)}
  window.__momo={get idle(){return performance.now()-last},get visible(){return visible},get nudges(){return nudges},get pants(){return pants}};
  setInterval(()=>{const now=performance.now(),idle=now-last;
   const rb=stage.getBoundingClientRect();visible=rb.top<innerHeight*.7&&rb.bottom>innerHeight*.3;
